@@ -54,8 +54,8 @@ class MinRenovasjonCalendar(CoordinatorEntity, CalendarEntity):
                 if earliest_date is None or pickup_date < earliest_date:
                     earliest_date = pickup_date
                     try:
-                        start_datetime = datetime.combine(pickup_date.date(), time.min).replace(tzinfo=dt_util.get_default_time_zone())
-                        end_datetime = datetime.combine(pickup_date.date(), time(23, 59)).replace(tzinfo=dt_util.get_default_time_zone())
+                        start_datetime = earliest_date.replace(tzinfo=dt_util.get_default_time_zone()).date()
+                        end_datetime = (earliest_date + timedelta(days=1)).replace(tzinfo=dt_util.get_default_time_zone()).date()
                         earliest_event = CalendarEvent(
                             summary=fraction_name,
                             start=start_datetime,
@@ -97,8 +97,8 @@ class MinRenovasjonCalendar(CoordinatorEntity, CalendarEntity):
                 processed_dates.add(date_key)
 
                 # Make dates timezone-aware for comparison and event creation
-                date_midnight = datetime.combine(date.date(), time.min).replace(tzinfo=dt_util.get_default_time_zone())
-                date_same_day_end = datetime.combine(date.date(), time(23, 59)).replace(tzinfo=dt_util.get_default_time_zone())
+                date_midnight = date.replace(tzinfo=dt_util.get_default_time_zone()).date()
+                date_same_day_end = (date + timedelta(days=1)).replace(tzinfo=dt_util.get_default_time_zone()).date()
 
                 if start_date <= date_midnight <= end_date or start_date <= date_same_day_end <= end_date:
                     events.append(
