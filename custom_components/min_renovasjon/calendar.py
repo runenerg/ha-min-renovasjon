@@ -3,7 +3,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 from .const import DOMAIN
 from .coordinator import MinRenovasjonCoordinator
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 import logging
 
 _LOGGER = logging.getLogger(__name__)
@@ -54,8 +54,8 @@ class MinRenovasjonCalendar(CoordinatorEntity, CalendarEntity):
                 if earliest_date is None or pickup_date < earliest_date:
                     earliest_date = pickup_date
                     try:
-                        start_datetime = earliest_date.replace(tzinfo=dt_util.get_default_time_zone()).date()
-                        end_datetime = (earliest_date + timedelta(days=1)).replace(tzinfo=dt_util.get_default_time_zone()).date()
+                        start_datetime = earliest_date.date()
+                        end_datetime = (earliest_date + timedelta(days=1)).date()                        earliest_event = CalendarEvent(
                         earliest_event = CalendarEvent(
                             summary=fraction_name,
                             start=start_datetime,
@@ -71,6 +71,9 @@ class MinRenovasjonCalendar(CoordinatorEntity, CalendarEntity):
         """Return events within a start and end date."""
         if not self.coordinator.data:
             return []
+        
+        start_date_date = start_date.date()
+        end_date_date = end_date.date() 
 
         events = []
         processed_dates = set()  # Track processed dates to avoid duplicates
@@ -97,10 +100,10 @@ class MinRenovasjonCalendar(CoordinatorEntity, CalendarEntity):
                 processed_dates.add(date_key)
 
                 # Make dates timezone-aware for comparison and event creation
-                date_midnight = date.replace(tzinfo=dt_util.get_default_time_zone()).date()
-                date_same_day_end = (date + timedelta(days=1)).replace(tzinfo=dt_util.get_default_time_zone()).date()
+                date_midnight = date.date()
+                date_same_day_end = (date + timedelta(days=1)).date()
 
-                if start_date <= date_midnight <= end_date or start_date <= date_same_day_end <= end_date:
+                if start_date_date <= date_midnight <= end_date_date or start_date_date <= date_same_day_end <= end_date_date:
                     events.append(
                         CalendarEvent(
                             summary=fraction_name,
